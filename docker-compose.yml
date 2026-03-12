@@ -1,0 +1,53 @@
+services :
+
+  postgres :
+    image: postgres:17
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: db_bibliotheque
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    
+  gestion_emprunt :
+    build: backend/gestion_emprunt
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://admin:admin123@postgres:5432/db_bibliotheque
+    
+
+  gestion_livre :
+    build: backend/gestion_livre
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://admin:admin123@postgres:5432/db_bibliotheque
+
+  gestion_user :
+    build: backend/gestion_user
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://admin:admin123@postgres:5432/db_bibliotheque
+
+  frontend:
+    build: frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - gestion_emprunt
+      - gestion_livre
+      - gestion_user
+    
+
+volumes:
+  postgres_data:
